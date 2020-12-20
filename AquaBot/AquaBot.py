@@ -305,4 +305,4 @@ async def test(ctx):
         link.append(f"https://mangadex.org/title/{manga.manga_id}/")
     await ctx.send(title[0]+link[0])
 
-client.run('Nzc1NTEyNDU3OTg4MTQ1MTUz.X6naQg.gc0Bz0jaQ8ksNeJzs2LLBzmNY9U')
+client.run('Insert Token')
