@@ -299,4 +299,4 @@ async def wishlist(ctx):
                        "Manga to your wish list")
 
 
-client.run('Nzc1NTEyNDU3OTg4MTQ1MTUz.X6naQg.3IamUhBORCmcO_T7MhU56baZcME')
+client.run('Token')
