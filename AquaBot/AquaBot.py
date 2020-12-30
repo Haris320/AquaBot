@@ -9,6 +9,7 @@ import customFunctions
 from customFunctions import genre
 import time
 from pytmangadex import Mangadex
+import os
 
 client = commands.Bot(command_prefix='.')
 client.remove_command('help')
@@ -63,7 +64,6 @@ async def nuke(ctx):
 
 @client.command()
 async def top5(ctx):
-
     msg = await ctx.send('https://i.gifer.com/ZLnU.gif')
     msg3 = await ctx.send('Fetching Data...')
     try:
@@ -74,9 +74,10 @@ async def top5(ctx):
         )
         a = []
         for i in range(0, 5):
-            a.append(high[str(i)]['title'] + " | Followers:" + high[str(i)]['follow_count'] + " | Rating:" + high[str(i)][
-                'star_rating'] + " out of 10" + " | Users:" + high[str(i)]['users'] + ' | https://mangadex.org' +
-                     high[str(i)]['thumbnail_link'])
+            a.append(
+                high[str(i)]['title'] + " | Followers:" + high[str(i)]['follow_count'] + " | Rating:" + high[str(i)][
+                    'star_rating'] + " out of 10" + " | Users:" + high[str(i)]['users'] + ' | https://mangadex.org' +
+                high[str(i)]['thumbnail_link'])
         for i in range(0, 5):
             embed.add_field(name="**Number " + str(i + 1) + ": **", value=a[i], inline=False)
             r = requests.get('https://mangadex.org' + high[str(0)]['thumbnail_link'])
@@ -124,6 +125,7 @@ async def feat(ctx):
         await msg3.delete()
         await ctx.send('API Status Code 502. Please try again later.')
 
+
 @client.command()
 async def search(ctx, *, term: str):
     msg = await ctx.send('https://i.imgur.com/GdHluBi.gif')
@@ -170,6 +172,7 @@ async def search(ctx, *, term: str):
 
 @client.command()
 async def followedmanga(ctx):
+    mangadex = Mangadex()
     def check(msg):
         return msg.guild is None and msg.author == ctx.message.author
 
@@ -196,6 +199,10 @@ async def followedmanga(ctx):
         await ctx.author.send(embed=embed)
     except:
         await ctx.author.send('Invalid Id')
+
+    if os.path.exists("session.txt"):
+        os.remove("session.txt")
+
 
 
 @client.command()
@@ -232,10 +239,6 @@ async def rec(ctx):
         retype = genre(msg.content)
         if retype != 999:
             r = requests.get('https://mangadex.org/genre/' + str(retype))
-        else:
-            if retype == 999:
-                await channel.send('Invalid genre. Please re-enter your preferred genre')
-
         soup = BeautifulSoup(r.text, 'html.parser')
         results = soup.find_all('div', attrs={'class': 'manga-entry col-lg-6 border-bottom pl-0 my-1'})
         a = []
@@ -259,6 +262,7 @@ async def rec(ctx):
                     customFunctions.wishlist.update({str(ctx.author): [str(a[client.position].find('a')['href'])]})
                 fal = False
                 await ctx.send(('Added to your wish list ' + ":wink:" + '.'))
+                break
             if reaction.emoji == '❌':
                 client.position += 1
                 await msg.edit(content='https://mangadex.org' + str(a[client.position].find('a')['href']))
@@ -267,25 +271,25 @@ async def rec(ctx):
         if client.position == 40:
             client.position = 0
     except:
-        await ctx.send("API Status code 502. Please try again later.")
+        await ctx.send("Invalid genre")
 
 
 @client.command()
 async def wishlist(ctx):
     try:
+        pic = ''
         hyperlink = ''
+        print(customFunctions.wishlist[str(ctx.author)])
         for i in range(0, len(customFunctions.wishlist[str(ctx.author)])):
             link = customFunctions.wishlist[str(ctx.author)][i]
-            hyperlink += f"[{mangadex.get_manga(link[7:12]).title}](https://mangadex.org/title/{link[7:12]}/)\n"
-
+            pic = customFunctions.wishlist[str(ctx.author)][0]
+            hyperlink += f"[{mangadex.get_manga(link[7:12]).title}](https://mangadex.org{link})\n"
         embed = discord.Embed(
             title=f"{ctx.author.name}'s wish list:",
             description=hyperlink,
             colour=discord.Colour.blue()
-
         )
-        url = customFunctions.wishlist[str(ctx.author)][0]
-        r = requests.get(f"https://mangadex.org/title/{url[7:12]}/")
+        r = requests.get(f"https://mangadex.org{pic}/")
         soup = BeautifulSoup(r.text, 'html.parser')
         results = soup.find_all('div', attrs={'class': 'col-xl-3 col-lg-4 col-md-5'})
         embed.set_thumbnail(url=str(results[0].find('img')['src']))
@@ -295,14 +299,4 @@ async def wishlist(ctx):
                        "Manga to your wish list")
 
 
-@client.command()
-async def test(ctx):
-    title = []
-    link = []
-    mangadex.login("Parrota", "QWERTY1234", newLogin=True)
-    async for manga in mangadex.search("darling", 5):
-        title.append(manga.title)
-        link.append(f"https://mangadex.org/title/{manga.manga_id}/")
-    await ctx.send(title[0]+link[0])
-
-client.run('Insert Token')
+client.run('Nzc1NTEyNDU3OTg4MTQ1MTUz.X6naQg.3IamUhBORCmcO_T7MhU56baZcME')
